@@ -6,10 +6,10 @@ class GroundTile {
     public:
         Sprite sprite;
         PlantTile CurrentPlant;
-        
+        bool HasPlant = false;
+        bool isHoeed = false;
         void SetupRest();
-        void setCurrentTex(Texture2D g);
-        //Texture2D getCurrentTex();
+        void Plant(PlantTypes type, Texture2D tex[]);
         GroundTile();
        
 

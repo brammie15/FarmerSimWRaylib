@@ -7,20 +7,40 @@
 const Rectangle ZERO_REC{ 0,0,0,0 };
 const Vector2 ZERO_VEC{ 0,0 };
 enum ItemType { empty = 0, wheatSeed = 1 };
-//enum PlantTypes { Wheat = 0, Berry = 1 };
+enum ToolType { hand = 0, hoe = 1};
 
 
 
-
+//void Plant(PlantTypes type, int selec, GroundTile a[],Texture2D tex[]) {
+//	GroundTile t = a[selec];
+//	if (t.HasPlant == true) {
+//		return;
+//	}
+//	else {
+//		switch (type){
+//			case Wheat:
+//				t.CurrentPlant = PlantTile(Wheat, createSprite(tex[wheatSeed], Vector2{ 16,16 }, 8, 1, Vector2{ 0,0 }, 1, Vector2{ 0,0 }));
+//				t.CurrentPlant.sprite.pos.y = GetScreenHeight() - (2 * 160);
+//				t.CurrentPlant.sprite.pos.x = t.sprite.pos.x;
+//				break;
+//			case Berry:
+//				break;
+//			default:
+//				break;
+//		}
+//	
+//	}
+//}
 
 int main()
 {
 	// Initialization
 	//--------------------------------------------------------------------------------------
 	const int screenWidth = 1600;
-
 	const int screenHeight = 800;
+
 	InitWindow(screenWidth, screenHeight, "Farmer Sim");
+
 	Texture2D FarmerTex = LoadTexture("Textures/Farmer.png");
 	Texture2D SkyTex = LoadTexture("Textures/sky.png");
 	Texture2D GrassTex = LoadTexture("Textures/Grass.png");
@@ -29,11 +49,16 @@ int main()
 	Texture2D WheatTex = LoadTexture("Textures/Wheat.png");
 	Texture2D EmptyTex = LoadTexture("Textures/Empty.png");
 	Texture2D BackgroundUITex = LoadTexture("Textures/background.png");
-	int selectionIndex;
+	Texture2D HoeTex = LoadTexture("Textures/diamond_hoe.png");
+	Texture2D SelectionBoxTex = LoadTexture("Textures/SelectionBox.png");
+	Texture2D PlantTex[] = { WheatTex };
 
 	Sprite Farmer = createSprite(FarmerTex, Vector2{ 32, 32 }, 2, 1, Vector2{ 0, 0 }, 0, Vector2{ 0, screenHeight - (160 * 3) });
 	Sprite SelectionBox = createSprite(SelectionTex, Vector2{ 16, 16 }, 1, 1, Vector2{ 0, 0 }, 0, Vector2{ 0, screenHeight - 160 });
+	Sprite CurrentTool = createSprite(HoeTex, Vector2{ 16, 16 }, 1, 1, Vector2{ 0, 0 }, 0, Vector2{ 10, 10});
+	Sprite SelectionBoxItem = createSprite(SelectionBoxTex, Vector2{ 22,22 }, 1, 1, Vector2{ 0, 0 }, 0, Vector2{ 0, 0 });
 
+	int selectionIndex = 0;
 	bool Facing = false;
 	bool Selecting = false;
 
@@ -51,12 +76,11 @@ int main()
 		tile.sprite.maxFrame = 1;
 		tile.sprite.origin = Vector2{ 0,0 };
 
-
-		//PlantTile plant = PlantTile(Wheat);
-		//plant.sprite.pos.x = a*160;
-		//plant.sprite.pos.y = screenHeight - (160*2);
-		//tile.CurrentPlant = plant;
-		//tile.CurrentPlant.tile.frame = GetRandomValue(0,8);
+		/*PlantTile p = PlantTile();
+		p.sprite = createSprite(WheatTex, Vector2{ 16,16 }, 8, 1, Vector2{ 0,0 }, 0, Vector2{ 100,100 });
+		p.sprite.pos.x = a * 160;
+		p.sprite.pos.y = screenHeight - (160 * 2);
+		tile.CurrentPlant = p;*/
 		GroundTiles[a] = tile;
 	}
 
@@ -88,31 +112,30 @@ int main()
 		else {
 			Farmer.frame = 0;
 		}
-		//----------------------------------------------------------------------------------
+		if (IsKeyDown(KEY_SPACE) && Selecting == true) {
+			GroundTiles[selectionIndex].Plant(Wheat, PlantTex);
+		}
 
 		// Draw
-		//----------------------------------------------------------------------------------
 		//TODO: SPRITES R LIFE
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 		DrawTexturePro(SkyTex, SkyRec, SkyRecScale, Vector2{ 0, 0 }, 0, RAYWHITE);
+		drawSprite(&SelectionBoxItem, 0, 6, false);
+		drawSprite(&CurrentTool, 0, 7, false);
 		drawSprite(&Farmer, 0, 10, false);
-
 		for (int x = 0; x < 10; x++) {
 			GroundTile t = GroundTiles[x];
 			drawSprite(&t.sprite, 0, 10, false);
-			//drawSprite(&t.CurrentPlant.tile,0,10,false);       
+			drawSprite(&t.CurrentPlant.sprite,0,10,false);       
 		}
 
 		if (Selecting) {
 			selectionIndex = round(Remap(Farmer.pos.x, 0, screenWidth, 0, 10));
 			SelectionBox.pos.x = selectionIndex * 160;
-
 			drawSprite(&SelectionBox, 0, 10, false);
-
 		}
-
-		DrawFPS(10, 10);
+		//DrawFPS(10, 10);
 		EndDrawing();
 		//----------------------------------------------------------------------------------
 	}
@@ -125,6 +148,7 @@ int main()
 	UnloadTexture(FarmerTex);
 	UnloadTexture(DirtTex);
 	UnloadTexture(EmptyTex);
+	UnloadTexture(HoeTex);
 	CloseWindow();        // Close window and OpenGL context
 	//--------------------------------------------------------------------------------------
 
